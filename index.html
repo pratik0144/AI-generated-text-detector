@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Text Detector</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+    .result { margin-top: 20px; padding: 10px; border-radius: 8px; background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h2>🕵️ AI vs Human Text Detector</h2>
+  <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+  <button onclick="analyzeText()">Check</button>
+
+  <div class="result" id="resultBox" style="display:none;"></div>
+
+  <script>
+    function detectAI(text) {
+      let score = 0;
+      const words = text.split(/\s+/);
+      const sentences = text.split(/[.!?]/);
+
+      const longSentences = sentences.filter(s => s.split(' ').length > 20);
+      if (longSentences.length > 0) score++;
+
+      const complexWords = ["moreover", "therefore", "utilize", "henceforth", "furthermore"];
+      if (complexWords.some(word => text.toLowerCase().includes(word))) score++;
+
+      const slang = ["gonna", "wanna", "lol", "bro", "dude", "😂"];
+      if (!slang.some(word => text.toLowerCase().includes(word))) score++;
+
+      if (!text.toLowerCase().includes("i ") && !text.toLowerCase().includes("my ")) score++;
+
+      let verdict = score >= 2 ? "AI-Generated" : "Human-Written";
+      let confidence = (score / 4) * 100;
+
+      let reason = verdict === "AI-Generated"
+        ? "The text is formal, long, and lacks personal or casual tone."
+        : "The text is casual, includes personal words or informal style.";
+
+      return { verdict, confidence: `${confidence}%`, reason };
+    }
+
+    function analyzeText() {
+      const text = document.getElementById("inputText").value;
+      const result = detectAI(text);
+      const resultBox = document.getElementById("resultBox");
+      resultBox.innerHTML = `<strong>Verdict:</strong> ${result.verdict}<br>
+                             <strong>Confidence:</strong> ${result.confidence}<br>
+                             <strong>Reason:</strong> ${result.reason}`;
+      resultBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
